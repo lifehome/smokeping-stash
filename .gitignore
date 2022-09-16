@@ -1,0 +1,3 @@
+# Prevent committing large RRD files into git repository
+*.rrd
+**/.rrd

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="300">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SmokePing Latency Page for <##title##></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css" integrity="sha512-ZRv40llEogRmoWgZwnsqke3HNzJ0kiI0+pcMgiz2bxO6Ew1DVBtWjVn0qjrXdT3+u+pSN36gLgmJiiQ3cQtyzA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w==" crossorigin="anonymous" />
+
+    <!-- customized css styling for Bulma -->
+    <style>
+      /* Default global styling */
+      html, body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        height: 100vh;
+        height: -webkit-fill-available;
+        background: #ECF0F3;
+
+        /* Apple device notches fix */
+        padding-top: env(safe-area-inset-top);
+      }
+
+      /* Navbar */
+      nav.navbar {
+        border-top: 4px solid #276cda;
+        margin-bottom: 1rem;
+      }
+
+      .navbar-item.brand-text {
+        font-weight: 300;
+      }
+
+      .navbar-item, .navbar-link {
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      /* Hero block */
+      .hero {
+        border-radius: 5px;
+      }
+
+      .hero.welcome.is-info {
+        background: #36D1DC;
+        background: -webkit-linear-gradient(to right, #5B86E5, #36D1DC);
+        background: linear-gradient(to right, #5B86E5, #36D1DC);
+      }
+
+      .hero.welcome .title, .hero.welcome .subtitle {
+        color: hsl(192, 17%, 99%);
+      }
+
+      /* Bulma - sticky footer */
+      body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+      }
+
+      div#smokeping-site {
+        flex: 1;
+        padding-bottom: 89px;
+
+        /* Apple device notches fix */
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+
+      .footer {
+        padding: 1.55rem;
+
+        /* Apple device notches fix */
+        padding-bottom: calc(env(safe-area-inset-bottom) + 1.55rem);
+      }
+
+      /* Smokeping - Bulma styling manual override - Hero Block */
+      #smokeping-bulma-contentheader-hero {
+        margin-bottom: 13px;
+      }
+
+      /* Smokeping - Bulma styling manual override - Overview and Details layout */
+      #smokeping-defaultstyled-overview .panel, #smokeping-defaultstyled-details .panel {
+        border-radius: none;
+        box-shadow: none;
+      }
+
+      #smokeping-defaultstyled-overview .panel:not(:last-child), #smokeping-defaultstyled-details .panel:not(:last-child) {
+        margin-bottom: none;
+      }
+
+      .panel-body {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+      }
+
+      .panel-body a img {
+        width: 100%;
+      }
+
+      /* Smokeping - Bulma styling manual override - Sidebar Menu styling */
+      .menu-label {
+        color: #8F99A3;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: unset;
+      }
+
+      .menulink, .menu-list a {
+        color: #0F1D38;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .menulink:hover, .menu-list a:hover {
+        background-color: transparent;
+        color: #276cda;
+      }
+
+      .menulink .is-active, .menu-list a.is-active {
+        background-color: transparent;
+        color: #276cda;
+        font-weight: 700;
+      }
+
+      .menu-list > .menuopen > .menu > .menuactive > .menulinkactive,
+      .menu-list > .menuopen > .menu > .menuopen   > .menulink,
+      .menu-list > .menuopen > .menu > .menuopen   > .menu > .menuactive > .menulinkactive {
+        text-transform: unset;
+      }
+
+      .menuactive .menu, .menuopen .menu {
+        border-left: 1px solid #dbdbdb;
+        margin: 0 12px;
+        padding-left: .75em;
+      }
+
+      .menu-list > .menuopen > .menu > .menuactive > .menulinkactive,
+      .menu-list > .menuopen > .menu > .menuopen   > .menulinkx {
+        margin-bottom: 0;
+      }
+
+
+      /* Smokeping - Bulma styling manual override - Sidebar search form styling */
+      #smokeping-defaultstyled-menu form {
+        margin-bottom: 13px;
+      }
+
+      .filter-label {
+        display: none;
+      }
+
+      .filter-text {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .filter-text input {
+        flex: 1;
+
+        box-sizing: border-box;
+        width: 100%;
+        outline: none;
+        border: 1px solid rgb(141, 146, 150);
+        border-radius: 5px;
+        color: rgb(78, 82, 85);
+        font-size: 1rem;
+        line-height: 1.4;
+        padding: .33em .89em;
+        margin: 8px 0;
+        vertical-align: middle;
+      }
+
+      .filter-text input:focus {
+        outline: none;
+      }
+
+      /* css spinner - https://loading.io/css/ */
+      #smokeping-contentspinner {
+        height: 100%;
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .lds-spinner {
+        color: official;
+        display: inline-block;
+        position: relative;
+        width: 80px;
+        height: 80px;
+      }
+
+      .lds-spinner div {
+        transform-origin: 40px 40px;
+        animation: lds-spinner 1.2s linear infinite;
+      }
+
+      .lds-spinner div:after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 3px;
+        left: 37px;
+        width: 6px;
+        height: 18px;
+        border-radius: 20%;
+        background: rgb(144,144,144);
+      }
+
+      .lds-spinner div:nth-child(1) {
+        transform: rotate(0deg);
+        animation-delay: -1.1s;
+      }
+
+      .lds-spinner div:nth-child(2) {
+        transform: rotate(30deg);
+        animation-delay: -1s;
+      }
+
+      .lds-spinner div:nth-child(3) {
+        transform: rotate(60deg);
+        animation-delay: -0.9s;
+      }
+
+      .lds-spinner div:nth-child(4) {
+        transform: rotate(90deg);
+        animation-delay: -0.8s;
+      }
+
+      .lds-spinner div:nth-child(5) {
+        transform: rotate(120deg);
+        animation-delay: -0.7s;
+      }
+
+      .lds-spinner div:nth-child(6) {
+        transform: rotate(150deg);
+        animation-delay: -0.6s;
+      }
+
+      .lds-spinner div:nth-child(7) {
+        transform: rotate(180deg);
+        animation-delay: -0.5s;
+      }
+
+      .lds-spinner div:nth-child(8) {
+        transform: rotate(210deg);
+        animation-delay: -0.4s;
+      }
+
+      .lds-spinner div:nth-child(9) {
+        transform: rotate(240deg);
+        animation-delay: -0.3s;
+      }
+
+      .lds-spinner div:nth-child(10) {
+        transform: rotate(270deg);
+        animation-delay: -0.2s;
+      }
+
+      .lds-spinner div:nth-child(11) {
+        transform: rotate(300deg);
+        animation-delay: -0.1s;
+      }
+
+      .lds-spinner div:nth-child(12) {
+        transform: rotate(330deg);
+        animation-delay: 0s;
+      }
+
+      @keyframes lds-spinner {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
+      /* Media Queries */
+      @media screen and (max-width: 1087px) {
+        /* Menu search bar */
+        .filter-text {
+          justify-content: center;
+        }
+        .filter-text input {
+          flex: 0 auto;
+          width: 89%;
+        }
+
+        /* Responsive/Mobile version menu */
+        aside#smokeping-defaultstyled-navmenu {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          height: -webkit-fill-available;
+          width: 0;
+          max-width: 72vw;
+          position: fixed;
+          top: 0;
+          left: -15rem;
+          z-index: 999;
+
+          overflow-y: scroll;
+
+          padding: 0;
+          padding-top: 4px;
+
+          border-top: 4px solid #276cda;
+
+          transition: all .21s ease-in;
+
+          /* Apple device notches fix */
+          padding-bottom: calc(env(safe-area-inset-bottom) + 1.55rem);
+
+          /* mobile viewport bug fix - https://allthingssmitty.com/2020/05/11/css-fix-for-100vh-in-mobile-webkit/ */
+				  min-height: -webkit-fill-available;
+        }
+
+        aside#smokeping-defaultstyled-navmenu.is-shown {
+          left: 0;
+          width: 100%;
+          box-shadow: 5px 0 5px 0 rgba(0,0,0,0.34);
+        }
+
+        aside#smokeping-defaultstyled-navmenu .menu {
+          padding: 0 .89em;
+        }
+      }
+    </style>
+    <!-- customized css styling for Bulma -->
+  </head>
+  <body id="body">
+    <div id="smokeping-site">
+      <aside id="smokeping-defaultstyled-navmenu" class="aside navbar-menu is-pulled-left is-hidden-tablet"><##menu##></aside> <!-- smokeping variables cannot contains linebreak -->
+      <nav class="navbar is-white">
+        <div class="container">
+          <div class="navbar-brand">
+            <a class="navbar-item brand-text" href="/">
+              Smokeping Panel
+            </a>
+            <div class="navbar-burger burger is-hidden-tablet" data-target="smokeping-defaultstyled-navmenu">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+        <a id="menu-button" class="is-hidden"></a> <!-- backward compatible tag, useless yet crucial implementation to circumvent smokeping.js error -->
+      </nav>
+      <div class="container">
+        <div id="smokeping-contentspinner">
+          <div class="lds-spinner">
+            <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+          </div>
+        </div>
+        <div id="smokeping-content" class="columns is-hidden">
+          <div class="column is-3 is-hidden-mobile">
+            <aside class="menu">
+              <div id="smokeping-defaultstyled-menu"><##menu##></div> <!-- smokeping variables cannot contains linebreak -->
+            </aside>
+          </div>
+          <div class="column is-9">
+            <section class="hero is-info welcome is-small" id="smokeping-bulma-contentheader-hero">
+              <div class="hero-body">
+                <div class="container">
+                  <h1 class="title" id="smokeping-bulma-contenteheader-herotitle"><##title##></h1> <!-- smokeping variables cannot contains linebreak -->
+                  <h2 class="subtitle" id="smokeping-bulma-contenteheader-herosubtitle"><##remark##></h2> <!-- smokeping variables cannot contains linebreak -->
+                </div>
+              </div>
+            </section>
+            <div id="smokeping-defaultstyled-overview"><##overview##></div> <!-- smokeping variables cannot contains linebreak -->
+            <div id="smokeping-defaultstyled-details"><##body##></div> <!-- smokeping variables cannot contains linebreak -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong><##smokeping##></strong> by <##author##>. Maintained with <i class="fas fa-heart" style="color:red"></i> by <##owner##>.
+        </p>
+        <p>
+          Design by <a href="https://github.com/lifehome" target="_blank">lifehome</a>, derived from <strong>Bulma Templates</strong> by <a href="https://github.com/dansup">Daniel Supernault</a> and <a href="https://github.com/BulmaTemplates/bulma-templates/graphs/contributors" target="_blank">many</a> contributors.
+        </p>
+        <p>
+          <a href="https://github.com/BulmaTemplates/bulma-templates" target="_blank"><i class="fab fa-github" style="color:black"></i></a>
+        </p>
+      </div>
+    </footer>
+
+    <script src="js/prototype.js" type="text/javascript"></script>
+    <script src="js/scriptaculous/scriptaculous.js?load=builder,effects,dragdrop" type="text/javascript"></script>
+    <script src="js/cropper/cropper.js" type="text/javascript"></script>
+    <script src="js/smokeping.js" type="text/javascript"></script>
+
+    <!-- customized DOM mutation for Bulma -->
+    <script>
+      /* responsive burger menu - https://bulmatemplates.github.io/bulma-templates/js/bulma.js */
+      (function() {
+        var burger = document.querySelector('.burger')
+        var menu = document.querySelector('#' + burger.dataset.target)
+
+        // defines how we should toggle the menu styles
+        const toggleMobileMenu = () => {
+          burger.classList.toggle('is-active')
+          menu.classList.toggle('is-shown')
+        }
+
+        /* toggle the menu whenever clicked on the burger */
+        burger.addEventListener('click', toggleMobileMenu)
+
+        /* responsive menu auto close when clicking outside -- https://stackoverflow.com/questions/36695438 */
+        window.addEventListener('click', e => {
+          if (burger.className.includes("is-active") && menu.className.includes("is-shown") && !menu.contains(e.target) && !burger.contains(e.target))
+            toggleMobileMenu()
+        })
+
+        /* handle touch event as well, worthy to note that plain old js cannot listen to multiple event */
+        window.addEventListener('touchend', e => {
+          if (burger.className.includes("is-active") && menu.className.includes("is-shown") && !menu.contains(e.target) && !burger.contains(e.target))
+            toggleMobileMenu()
+        })
+      })()
+
+      /* #content_hero style processing */
+      const content_hero = document.getElementById('smokeping-bulma-contentheader-hero')
+      const content_herotitle = document.getElementById('smokeping-bulma-contenteheader-herotitle')
+      const content_herosubtitle = document.getElementById('smokeping-bulma-contenteheader-herosubtitle')
+
+      const content_overview_block = document.getElementById('smokeping-defaultstyled-overview')
+      const content_details_block = document.getElementById('smokeping-defaultstyled-details')
+
+      if(content_herosubtitle.innerHTML.replace(/\s+/g, '') === "" && content_overview_block.innerHTML.replace(/\s+/g, '') === "" && content_details_block.innerHTML.replace(/\s+/g, '') === "")
+        content_herosubtitle.innerHTML = "<i class='fas fa-exclamation-triangle' style='color:pink'></i>&nbsp;Please select items at the menu to plot graphs.&nbsp;<i class='fas fa-exclamation-triangle' style='color:pink'></i>"
+
+      // last we check if herotitle and herosubtitle is empty, if so then hide it
+      if(content_herotitle.innerHTML.replace(/\s+/g, '') === "" && content_herosubtitle.innerHTML.replace(/\s+/g, '') === "")
+        content_hero.classList.add("is-hidden")
+
+      /* Smokeping default styling overriding - I know, it's ugly, but it works! */
+      const listOfGraphPanels_overview = document.querySelectorAll('#smokeping-defaultstyled-overview div.panel')
+      const listOfGraphPanels_details  = document.querySelectorAll('#smokeping-defaultstyled-details div.panel')
+
+      listOfGraphPanels_overview.forEach(e=>{
+        e.classList.add("box")
+      })
+
+      listOfGraphPanels_details.forEach(e=>{
+        e.classList.add("box")
+      })
+
+      const listOfPanelHeadings = document.querySelectorAll(".panel-heading")
+
+      listOfPanelHeadings.forEach(e=>{
+        e.classList.remove("panel-heading")
+        e.classList.add("title")
+        e.classList.add("is-4")
+        e.style.textAlign = "center"
+      })
+
+      const overview_h1 = document.querySelector('#smokeping-defaultstyled-overview h1')
+      if(overview_h1){
+        const overview_h1_origvalue = overview_h1.innerHTML
+
+        overview_h1.innerHTML = `<section class="hero is-info welcome is-small" id="smokeping-bulma-contentheader-hero"> <div class="hero-body"> <div class="container"> <h2 class="subtitle" id="smokeping-bulma-contenteheader-herosubtitle">${overview_h1_origvalue}</h2> </div></div></section>`
+      }
+
+      const topmenu_activelink = document.querySelectorAll('.menuactive > .menulinkactive')
+
+      topmenu_activelink.forEach(e=>{
+        e.classList.add("menu-label")
+        e.classList.add("is-active")
+      })
+
+      const menulink_opened = document.querySelectorAll('.menuopen > .menulink')
+
+      menulink_opened.forEach(e=>{
+        e.classList.add("menu-label")
+        e.classList.add("is-active")
+      })
+
+      const topmenu = document.querySelector('#smokeping-defaultstyled-menu > ul.menu')
+      if(topmenu){
+        topmenu.classList.add('menu-list')
+      }
+
+      const sidemenu = document.querySelector('#smokeping-defaultstyled-navmenu > ul.menu')
+      if(sidemenu){
+        sidemenu.classList.add('menu-list')
+      }
+
+      const othermenuitems = document.querySelectorAll('#smokeping-defaultstyled-menu > ul.menu > li.menuitem')
+
+      othermenuitems.forEach(e=>{
+        e.classList.add('menu-label')
+      })
+
+      const othersidemenuitems = document.querySelectorAll('#smokeping-defaultstyled-navmenu > ul.menu > li.menuitem')
+
+      othersidemenuitems.forEach(e=>{
+        e.classList.add('menu-label')
+      })
+
+      const filterinput = document.querySelectorAll('input#filter')
+
+      filterinput.forEach(e=>{
+        e.removeAttribute('size')
+      })
+
+      /* Hack to prompt selecting search results */
+      const res_querycount = location.search.substr(1).split(";")
+
+      if(res_querycount.length === 1 && /[?&]filter=/.test(location.search)){
+        const searchresult_count = document.querySelectorAll('#smokeping-defaultstyled-navmenu > ul > li').length
+
+        content_herotitle.innerHTML = `<i class='fas fa-search'></i>&nbsp;Found ${searchresult_count} results`
+
+        if(searchresult_count > 0)
+          content_herosubtitle.innerHTML = `<i class='fas fa-exclamation-triangle' style='color:pink'></i>&nbsp;Please select items at the menu to plot graphs.&nbsp;<i class='fas fa-exclamation-triangle' style='color:pink'></i>`
+        else
+          content_herosubtitle.innerHTML = `🤔 Hmmm... Perhaps try another keyword?<br/><br/><a class="button is-info is-light is-pulled-right" href="/">« Back to home</a>`
+      }
+
+      /* At last, since changes are baked and ready to ship, we hide the spinner and show the main course */
+      const site_spinner = document.getElementById('smokeping-contentspinner')
+      const site_content = document.getElementById('smokeping-content')
+
+      site_spinner.classList.add("is-hidden")
+      site_content.classList.remove("is-hidden")
+    </script>
+    <!-- customized DOM mutation for Bulma -->
+
+  </body>
+</html>

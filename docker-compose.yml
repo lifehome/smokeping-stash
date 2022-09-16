@@ -1,0 +1,21 @@
+---
+version: "3.9"
+services:
+  smokeping:
+    image: lscr.io/linuxserver/smokeping:latest
+    container_name: smokeping
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      # Specify timezone to operation team
+      - TZ=Asia/Hong_Kong
+    volumes:
+      # Application-specific mounts/volumes
+      - ./config:/config
+      - ./data:/data
+      # Explicitly replacing the base template of Smokeping UI/UX
+      - ./basepage.html:/etc/smokeping/basepage.html
+    ports:
+      # Hostname proxied through Cloudflare Tunnel
+      - 127.0.0.1:10001:80
